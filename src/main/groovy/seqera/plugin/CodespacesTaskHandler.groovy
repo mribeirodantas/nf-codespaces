@@ -158,7 +158,7 @@ class CodespacesTaskHandler extends TaskHandler {
     private String getOrCreateCodespace(String repo, String branch) {
         // For simplicity, try to use an existing codespace or create a new one
         def listCmd = ['gh', 'codespace', 'list', '--json', 'name,state']
-        def result = executeCommand(listCmd)
+        def result = executeGhCommand(listCmd)
         
         // Parse JSON and find a running codespace
         if (result.exitValue == 0 && result.stdout) {
@@ -177,7 +177,7 @@ class CodespacesTaskHandler extends TaskHandler {
             createCmd += ['-b', branch]
         }
         
-        def createResult = executeCommand(createCmd)
+        def createResult = executeGhCommand(createCmd)
         if (createResult.exitValue != 0) {
             def stderr = createResult.stderr as String
             throw new RuntimeException("Failed to create codespace: ${stderr}")
@@ -219,7 +219,34 @@ class CodespacesTaskHandler extends TaskHandler {
         // Copy work directory contents
         def remotePathStr = "${remotePath}/" as String
         def cpCmd = ['gh', 'codespace', 'cp', '-r', '-c', codespaceName, workDir, remotePathStr]
-        executeCommand(cpCmd)
+        executeGhCommandWithMount(cpCmd, workDir)
+    }
+
+    /**
+     * Execute a gh command with volume mount for file operations
+     */
+    private Map executeGhCommandWithMount(List<String> ghArgs, String localPath) {
+        // Check if user wants to use local gh installation
+        def useLocalGh = task.config.ext?.codespaces?.useLocalGh ?: 
+                        System.getenv('NXF_CODESPACES_USE_LOCAL_GH')?.toBoolean() ?: 
+                        false
+        
+        if (useLocalGh) {
+            log.debug "Using local gh CLI installation for file operations"
+            return executeCommand(ghArgs)
+        }
+        
+        // Default: Use Docker-based gh CLI with volume mount
+        log.debug "Using Docker-based gh CLI with volume mount"
+        def dockerCmd = [
+            'docker', 'run', '--rm',
+            '-v', "${System.getProperty('user.home')}/.config/gh:/root/.config/gh:ro",
+            '-v', "${localPath}:${localPath}:ro",
+            '-e', "GITHUB_TOKEN=${System.getenv('GITHUB_TOKEN') ?: ''}",
+            'community.wave.seqera.io/library/pip_gh:04f2de2fa12e5bcc'
+        ] + ghArgs
+        
+        return executeCommand(dockerCmd)
     }
 
     /**
@@ -244,11 +271,37 @@ class CodespacesTaskHandler extends TaskHandler {
      */
     private void executeInCodespaceSync(String command) {
         def cmd = ['gh', 'codespace', 'ssh', '-c', codespaceName, '--', command]
-        def result = executeCommand(cmd)
+        def result = executeGhCommand(cmd)
         
         if (result.exitValue != 0) {
             log.warn "Command failed in codespace: ${command}, stderr: ${result.stderr}"
         }
+    }
+
+    /**
+     * Execute a gh command using Docker container or local installation
+     */
+    private Map executeGhCommand(List<String> ghArgs) {
+        // Check if user wants to use local gh installation
+        def useLocalGh = task.config.ext?.codespaces?.useLocalGh ?: 
+                        System.getenv('NXF_CODESPACES_USE_LOCAL_GH')?.toBoolean() ?: 
+                        false
+        
+        if (useLocalGh) {
+            log.debug "Using local gh CLI installation"
+            return executeCommand(ghArgs)
+        }
+        
+        // Default: Use Docker-based gh CLI
+        log.debug "Using Docker-based gh CLI"
+        def dockerCmd = [
+            'docker', 'run', '--rm',
+            '-v', "${System.getProperty('user.home')}/.config/gh:/root/.config/gh:ro",
+            '-e', "GITHUB_TOKEN=${System.getenv('GITHUB_TOKEN') ?: ''}",
+            'community.wave.seqera.io/library/pip_gh:04f2de2fa12e5bcc'
+        ] + ghArgs
+        
+        return executeCommand(dockerCmd)
     }
 
     /**
