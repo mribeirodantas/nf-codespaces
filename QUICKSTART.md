@@ -26,7 +26,10 @@ ls ~/.config/gh/hosts.yml
 # ✓ Should exist if you've run 'gh auth login' before
 ```
 
-If any checks fail, see the [Setup Guide](examples/SETUP.md).
+**❌ If any checks fail:**
+- Docker issues → [Install Docker](https://docs.docker.com/get-docker/)
+- Authentication issues → **[📖 Authentication Guide](AUTHENTICATION.md)** for step-by-step token setup
+- Other issues → [Setup Guide](examples/SETUP.md)
 
 ## Installation
 
@@ -83,10 +86,12 @@ process {
 
 ### 3. Set GitHub authentication
 
+**Need help getting a token?** → **[📖 See Authentication Guide](AUTHENTICATION.md)**
+
 Choose one:
 
 ```bash
-# Option A: Set token (if you have one)
+# Option A: Set token (get from https://github.com/settings/tokens)
 export GITHUB_TOKEN=ghp_your_token_here
 
 # Option B: Use existing gh config (if you've used 'gh auth login' before)
@@ -186,6 +191,7 @@ Creating codespace for user/repo...
 ## Next Steps
 
 ### Learn More
+- 🔐 [Authentication Guide](AUTHENTICATION.md) - Complete GitHub token setup
 - 📚 [Full Setup Guide](examples/SETUP.md)
 - 🏗️ [Architecture Overview](ARCHITECTURE.md)  
 - 🐳 [Docker Integration Details](DOCKER_INTEGRATION.md)
