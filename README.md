@@ -13,9 +13,7 @@ A Nextflow plugin that enables execution of tasks in GitHub Codespaces environme
 
 - GitHub account with access to Codespaces
 - Docker installed on the machine running Nextflow
-- GitHub authentication via one of:
-  - `GITHUB_TOKEN` environment variable
-  - GitHub CLI config in `~/.config/gh/` (from a previous `gh auth login`)
+- GitHub authentication - **[📖 See Authentication Guide](AUTHENTICATION.md)** for detailed setup instructions
 
 **Note:** The plugin uses the Docker image `community.wave.seqera.io/library/pip_gh:04f2de2fa12e5bcc` which includes the GitHub CLI. You don't need to install `gh` locally.
 
@@ -56,22 +54,30 @@ process {
 
 ### Authentication
 
-The plugin needs GitHub authentication to create and manage codespaces. Set it up using one of these methods:
+The plugin needs GitHub authentication to create and manage codespaces. 
 
-**Option 1: Environment variable (recommended for CI/CD)**
+**📖 [Complete Authentication Guide](AUTHENTICATION.md)** - Detailed step-by-step instructions for:
+- Creating GitHub Personal Access Tokens
+- Setting up GitHub CLI authentication  
+- CI/CD integration
+- Troubleshooting
+
+**Quick Setup:**
+
+**Option 1: Using a Token (CI/CD)**
 ```bash
+# Get token from: https://github.com/settings/tokens (needs 'repo' and 'codespace' scopes)
 export GITHUB_TOKEN=ghp_your_token_here
 nextflow run your-pipeline.nf
 ```
 
-**Option 2: GitHub CLI authentication (recommended for local development)**
+**Option 2: Using GitHub CLI (Local)**
 ```bash
-# One-time setup (from a machine with gh CLI installed)
-gh auth login
-
-# The plugin will automatically use the credentials from ~/.config/gh/
+gh auth login  # Follow the prompts
 nextflow run your-pipeline.nf
 ```
+
+For complete instructions including token creation, see **[AUTHENTICATION.md](AUTHENTICATION.md)**
 
 ### Using Local GH CLI (Alternative)
 
@@ -118,6 +124,7 @@ All GitHub CLI operations happen inside the Docker container, making the plugin 
 
 ## Documentation
 
+- 🔐 **[Authentication Guide](AUTHENTICATION.md)** - Complete guide to GitHub authentication setup
 - 🚀 **[Quick Start Guide](QUICKSTART.md)** - Get running in 5 minutes
 - 📚 **[Setup Guide](examples/SETUP.md)** - Detailed installation and configuration
 - 🏗️ **[Architecture](ARCHITECTURE.md)** - Technical design and implementation

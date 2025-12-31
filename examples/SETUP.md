@@ -15,50 +15,43 @@ This guide walks you through setting up and testing the nf-codespaces plugin.
 
 ## Authentication Setup
 
-### Method 1: Using Environment Variable (Recommended for CI/CD)
+**📖 For detailed step-by-step instructions, see the [Authentication Guide](../AUTHENTICATION.md)**
 
-1. Create a GitHub Personal Access Token:
-   - Go to https://github.com/settings/tokens
-   - Click "Generate new token (classic)"
-   - Select scopes: `repo`, `codespace`
-   - Generate and copy the token
+The Authentication Guide covers:
+- Creating GitHub Personal Access Tokens with screenshots
+- Setting up GitHub CLI authentication
+- CI/CD integration (GitHub Actions, GitLab CI, Jenkins)
+- Troubleshooting common issues
+- Security best practices
 
-2. Set the environment variable:
-   ```bash
-   export GITHUB_TOKEN=ghp_your_token_here
-   ```
+### Quick Setup
 
-3. Add to your shell profile for persistence:
-   ```bash
-   echo 'export GITHUB_TOKEN=ghp_your_token_here' >> ~/.bashrc
-   source ~/.bashrc
-   ```
+**Method 1: Using Environment Variable (CI/CD)**
+```bash
+# 1. Get token from: https://github.com/settings/tokens
+#    (Select scopes: 'repo' and 'codespace')
+# 2. Set environment variable
+export GITHUB_TOKEN=ghp_your_token_here
+# 3. Make it persistent
+echo 'export GITHUB_TOKEN=ghp_your_token_here' >> ~/.bashrc
+source ~/.bashrc
+```
 
-### Method 2: Using GitHub CLI Config (Recommended for Local Development)
+**Method 2: Using GitHub CLI (Local Development)**
+```bash
+# 1. Install gh CLI (see https://github.com/cli/cli#installation)
+brew install gh  # macOS
+# or
+sudo apt install gh  # Linux
 
-1. Install GitHub CLI on any machine (doesn't need to be where you run Nextflow):
-   ```bash
-   # macOS
-   brew install gh
-   
-   # Linux
-   curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-   sudo apt update
-   sudo apt install gh
-   ```
+# 2. Authenticate
+gh auth login
 
-2. Authenticate:
-   ```bash
-   gh auth login
-   ```
-   Follow the prompts to authenticate with GitHub
+# 3. Verify
+gh auth status
+```
 
-3. Copy the config to your Nextflow machine (if different):
-   ```bash
-   # The config is stored in ~/.config/gh/
-   scp -r ~/.config/gh/ user@nextflow-machine:~/.config/
-   ```
+For complete instructions, troubleshooting, and CI/CD setup, see **[Authentication Guide](../AUTHENTICATION.md)**
 
 ## Testing the Plugin
 
